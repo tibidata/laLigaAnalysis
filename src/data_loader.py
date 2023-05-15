@@ -34,7 +34,7 @@ class DataLoader:
             df_list.append(df)
         return pd.concat(df_list)
 
-    def load_data(self):
+    def load_data(self, columns_to_keep: list):
         """
         Calls the download_data and read_data methods
         :return: pd.DataFrame: DataFrame of the input data
@@ -42,7 +42,7 @@ class DataLoader:
         self.download_data()
         self.dataframe = self.read_data()
 
-        return self.dataframe
+        return self.dataframe[columns_to_keep]
 
 
 
