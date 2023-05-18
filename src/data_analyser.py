@@ -1,7 +1,9 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from scipy.stats import skew, kurtosis, chisquare, kstest
+import pylab
+from scipy.stats import skew, kurtosis, chisquare, kstest, pearsonr, ttest_ind, spearmanr
+import statsmodels.api as sm
 
 
 class DataAnalyser:
@@ -15,10 +17,18 @@ class DataAnalyser:
         self.is_nulls = None
 
     def check_nulls(self):
+        """
+        Checks if the input data has null values.
+        :return: bool:
+        """
         self.is_nulls = self.data.isnull().values.any()
         return self.is_nulls
 
     def create_np_array(self):
+        """
+        Creates a ndarray from the input data
+        :return: ndarray:
+        """
         if self.is_nulls:
             raise Exception('There are NaN numbers in the dataframe, please remove them before continuing')
         else:
@@ -27,6 +37,10 @@ class DataAnalyser:
         return self.data_array
 
     def calculate_mean(self):
+        """
+        Calculates the mean colum-wise
+        :return: ndarray : means of the columns
+        """
         if self.data_array is None:
             raise Exception('Use the create_np_array() method first')
         else:
@@ -35,6 +49,10 @@ class DataAnalyser:
         return self.column_means
 
     def calculate_median(self):
+        """
+        Calculates the median colum-wise
+        :return: ndarray : medians of the columns
+        """
         if self.data_array is None:
             raise Exception('Use the create_np_array() method first')
         else:
@@ -43,6 +61,10 @@ class DataAnalyser:
         return self.column_medians
 
     def plot_boxplot(self):
+        """
+        Plots the boxplot of the columns
+        :return: None
+        """
         if self.data_array is None:
             raise Exception('Use the create_np_array() method first')
         else:
@@ -60,6 +82,10 @@ class DataAnalyser:
             plt.show()
 
     def plot_hist(self):
+        """
+        Plots the histograms of the columns
+        :return: None
+        """
         if self.data_array is None:
             raise Exception('Use the create_np_array() method first')
         else:
@@ -76,6 +102,10 @@ class DataAnalyser:
             plt.show()
 
     def calculate_skewness(self):
+        """
+        Calculates the skewness of the variables
+        :return: ndarray: array of the skewnesses
+        """
         if self.data_array is None:
             raise Exception('Use the create_np_array() method first')
         else:
@@ -84,6 +114,10 @@ class DataAnalyser:
             return self.skewness
 
     def calculate_kurtosis(self):
+        """
+        Calculates the kurtosis of the variables
+        :return: ndarray: array of the kurtosis
+        """
         if self.data_array is None:
             raise Exception('Use the create_np_array() method first')
         else:
@@ -91,19 +125,55 @@ class DataAnalyser:
 
             return self.kurtosis
 
-    def chi_square_test(self):
-
+    def qq_plot(self):
+        """
+        Plots the Q-Q plot of the variables
+        :return:
+        """
+        x_labels = ['FTHG', 'FTAG', 'HxG', 'AxG']
         if self.data_array is None:
             raise Exception('Use the create_np_array() method first')
         else:
-            stat, p = chisquare(self.data_array)
-            return p
+            for i in range(self.data_array.shape[1]):
+                sm.qqplot(self.data_array[:, i], line='45')
+                plt.title('Normal Q-Q plot - ' + x_labels[i])
+                plt.savefig('plots/qq_plot_' + str(i))
+                plt.show()
 
-    def kolmogorov_test(self):
-
+    def pearson_corr(self):
+        """
+        Calculates the pearson-correlation of the variables
+        :return: list: pvalue and statistic of the test
+        """
         if self.data_array is None:
             raise Exception('Use the create_np_array() method first')
         else:
-            stat, p = kstest(self.data_array[:, 2], 'norm')
+            res1 = pearsonr(self.data_array[:, 0], self.data_array[:, 2])
+            res2 = pearsonr(self.data_array[:, 1], self.data_array[:, 3])
+            return [res1, res2]
 
-        return p
+    def t_test(self):
+        """
+        Does the t-test
+        :return: list: pvalue and statistic of the test
+        """
+        if self.data_array is None:
+            raise Exception('Use the create_np_array() method first')
+        else:
+            res1 = ttest_ind(self.data_array[:, 0], self.data_array[:, 2])
+            res2 = ttest_ind(self.data_array[:, 1], self.data_array[:, 3])
+
+            return [res1, res2]
+
+    def spearman(self):
+        """
+        Calculates the spearman-correlation of the variables
+        :return: list: pvalue and statistic of the test
+        """
+        if self.data_array is None:
+            raise Exception('Use the create_np_array() method first')
+        else:
+            res1 = spearmanr(self.data_array[:, 0], self.data_array[:, 2])
+            res2 = spearmanr(self.data_array[:, 1], self.data_array[:, 3])
+
+            return [res1, res2]
