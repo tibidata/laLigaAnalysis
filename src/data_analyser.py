@@ -1,7 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import pylab
 from scipy.stats import skew, kurtosis, chisquare, kstest, pearsonr, ttest_ind, spearmanr
 import statsmodels.api as sm
 
@@ -177,3 +176,5 @@ class DataAnalyser:
             res2 = spearmanr(self.data_array[:, 1], self.data_array[:, 3])
 
             return [res1, res2]
+
+
